@@ -50,7 +50,6 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
             <Flex align="center" gap="middle">
               <span>{session.user.name}</span>
               <Button onClick={() => {
-                debugger;
                 signOut({ callbackUrl: '/login' })
               }}>
                 退出登录
