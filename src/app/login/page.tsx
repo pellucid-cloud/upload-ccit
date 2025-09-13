@@ -28,7 +28,7 @@ export default function LoginPage() {
         router.refresh();
       }
     } catch (error) {
-      setError('登录时发生错误');
+      setError('登录时发生错误'+error);
     }
   };
 

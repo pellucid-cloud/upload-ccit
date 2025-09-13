@@ -17,7 +17,7 @@ export default function UploadPage() {
     name: 'file',
     multiple: false,
     customRequest: async (options) => {
-      const { file, onSuccess, onError, onProgress } = options;
+      const { file, onSuccess, onError } = options;
       setUploading(true);
 
       try {

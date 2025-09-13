@@ -13,9 +13,6 @@ const geistMono = Geist_Mono({
 });
 
 import { AntdRegistry } from '@ant-design/nextjs-registry';
-import { getServerSession } from 'next-auth';
-import { headers } from 'next/headers';
-import { authOptions } from '@/lib/auth';
 import MainLayout from '@/components/MainLayout';
 import { Providers } from '@/components/Providers';
 
@@ -29,9 +26,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await getServerSession(authOptions);
-  const headersList = headers();
-  
   return (
     <html lang="zh-CN">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>

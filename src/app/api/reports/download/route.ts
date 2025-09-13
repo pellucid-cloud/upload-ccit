@@ -5,7 +5,6 @@ import { prisma } from '@/lib/prisma';
 import { createReadStream } from 'fs';
 import { join } from 'path';
 import archiver from 'archiver';
-import { Readable } from 'stream';
 
 export async function POST(req: NextRequest) {
   try {
