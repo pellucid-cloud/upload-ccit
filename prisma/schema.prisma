@@ -3,14 +3,11 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   directUrl = env("DATABASE_URL")
 }
-enum Role {
-  STUDENT
-  TEACHER
-}
+
 model User {
   id        String   @id @default(cuid())
   studentId String   @unique
@@ -33,4 +30,7 @@ model Report {
   user        User     @relation(fields: [userId], references: [id])
 }
 
-
+enum Role {
+  STUDENT
+  TEACHER
+}
