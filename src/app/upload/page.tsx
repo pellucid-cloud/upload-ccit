@@ -64,6 +64,8 @@ export default function UploadPage() {
       
       return true;
     },
+    maxCount: 1,
+    fileList: []
   };
 
   return (
