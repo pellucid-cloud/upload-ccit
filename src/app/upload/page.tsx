@@ -124,7 +124,10 @@ export default function UploadPage() {
     {
       title: '操作',
       key: 'action',
-      render: (_: any, record: Report) => (
+      render: (_: Report, record: Report) => {
+        console.log(_, record);
+        
+        return (
         <Flex gap="small">
           <Button
             size="small"
@@ -138,6 +141,7 @@ export default function UploadPage() {
           </Popconfirm>
         </Flex>
       )
+      }
     }
   ];
 
