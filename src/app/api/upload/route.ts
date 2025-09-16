@@ -21,7 +21,6 @@ export async function POST(req: NextRequest) {
     // 去重
     const existingReport = await prisma.report.findFirst({
       where: {
-        fileName: file.name,
         userId: session.user.id,
       },
     });

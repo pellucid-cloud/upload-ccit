@@ -15,6 +15,7 @@ const geistMono = Geist_Mono({
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import MainLayout from '@/components/MainLayout';
 import { Providers } from '@/components/Providers';
+import '@ant-design/v5-patch-for-react-19'; // 兼容 React 19
 
 export const metadata: Metadata = {
   title: "实验报告提交系统",

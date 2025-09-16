@@ -19,8 +19,6 @@ export default function AdminPage() {
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [selectedReports, setSelectedReports] = useState<Set<string>>(new Set());
-  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     const fetchReports = async () => {
@@ -41,64 +39,6 @@ export default function AdminPage() {
     fetchReports();
   }, []);
 
-  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.checked) {
-      setSelectedReports(new Set(reports.map(report => report.id)));
-    } else {
-      setSelectedReports(new Set());
-    }
-  };
-
-  const handleSelectReport = (reportId: string) => {
-    const newSelected = new Set(selectedReports);
-    if (newSelected.has(reportId)) {
-      newSelected.delete(reportId);
-    } else {
-      newSelected.add(reportId);
-    }
-    setSelectedReports(newSelected);
-  };
-
-  const handleDownloadSelected = async () => {
-    if (selectedReports.size === 0) {
-      alert('请选择要下载的文件');
-      return;
-    }
-
-    try {
-      setDownloading(true);
-      const response = await fetch('/api/reports/download', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          reportIds: Array.from(selectedReports),
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('下载失败');
-      }
-
-      // 创建一个临时链接来下载文件
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `reports-${new Date().toISOString().split('T')[0]}.zip`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (error) {
-      console.error('下载错误:', error);
-      alert('下载失败，请重试');
-    } finally {
-      setDownloading(false);
-    }
-  };
-
   if (loading) {
     return <div className="text-center py-8">加载中...</div>;
   }
@@ -115,30 +55,11 @@ export default function AdminPage() {
     <div className="max-w-6xl mx-auto space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">实验报告管理</h1>
-        <button
-          onClick={handleDownloadSelected}
-          disabled={selectedReports.size === 0 || downloading}
-          className={`px-4 py-2 rounded-md text-white ${
-            selectedReports.size === 0 || downloading
-              ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-blue-600 hover:bg-blue-700'
-          }`}
-        >
-          {downloading ? '下载中...' : `下载选中的文件 (${selectedReports.size})`}
-        </button>
       </div>
       <div className="overflow-x-auto bg-white rounded-lg shadow">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                <input
-                  type="checkbox"
-                  onChange={handleSelectAll}
-                  checked={selectedReports.size === reports.length && reports.length > 0}
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                />
-              </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 文件名
               </th>
@@ -156,14 +77,6 @@ export default function AdminPage() {
           <tbody className="bg-white divide-y divide-gray-200">
             {reports.map((report) => (
               <tr key={report.id}>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <input
-                    type="checkbox"
-                    checked={selectedReports.has(report.id)}
-                    onChange={() => handleSelectReport(report.id)}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm text-gray-900">{report.title}</div>
                 </td>

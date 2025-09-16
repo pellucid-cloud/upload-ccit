@@ -21,13 +21,23 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       ];
     }
 
+    const commonItems = [
+      {
+        key: '/dashboard/password',
+        label: <Link href="/dashboard/password">修改密码</Link>,
+      }
+    ];
+
     return session.user.role === 'TEACHER'
-      ? [{ key: '/admin', label: <Link href="/admin">管理面板</Link> },
-        {
-          key: '/dashboard', label: <Link href="/dashboard">数据面板</Link>
-        }
-      ]
-      : [{ key: '/upload', label: <Link href="/upload">上传报告</Link> }];
+      ? [
+          { key: '/admin', label: <Link href="/admin">管理面板</Link> },
+          { key: '/dashboard', label: <Link href="/dashboard">数据面板</Link> },
+          ...commonItems
+        ]
+      : [
+          { key: '/upload', label: <Link href="/upload">上传报告</Link> },
+          ...commonItems
+        ];
   };
 
   return (
