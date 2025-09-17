@@ -125,7 +125,6 @@ export default function UploadPage() {
       title: '操作',
       key: 'action',
       render: (_: Report, record: Report) => {
-        
         return (
         <Flex gap="small">
           <Button

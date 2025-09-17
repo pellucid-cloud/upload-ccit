@@ -1,5 +1,6 @@
 'use client';
 
+import { useLoading } from '@/contexts/LoadingContext';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -7,9 +8,10 @@ import { useState } from 'react';
 export default function LoginPage() {
   const router = useRouter();
   const [error, setError] = useState('');
-
+  const { startLoading, endLoading } = useLoading();
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    startLoading();
     const formData = new FormData(e.currentTarget);
     const studentId = formData.get('studentId') as string;
     const password = formData.get('password') as string;
@@ -24,6 +26,7 @@ export default function LoginPage() {
       if (result?.error) {
         setError('登录失败，请检查学号/工号和密码');
       } else {
+        endLoading();
         router.push('/');
         router.refresh();
       }

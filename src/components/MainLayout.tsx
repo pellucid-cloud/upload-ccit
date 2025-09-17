@@ -39,13 +39,13 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
           ...commonItems
         ];
   };
-
+  
   return (
     // 将Layout设置为flex布局，以适应不同屏幕尺寸
     <Layout style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       <Header style={{ background: '#fff', padding: '0 16px' }}>
         <Flex justify="space-between" align="center" style={{ height: '100%' }}>
-          <Flex align="center" gap="middle">
+          <Flex style={{flex: 1}} align="center" gap="middle">
             <Link href="/" className="text-xl font-bold">
               实验报告系统
             </Link>
@@ -53,7 +53,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
               mode="horizontal"
               selectedKeys={[pathname]}
               items={getMenuItems()}
-              style={{ border: 'none' }}
+              style={{ flex: 1, border: 'none' }}
             />
           </Flex>
           {session && (
