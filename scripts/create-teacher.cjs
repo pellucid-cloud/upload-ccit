@@ -33,4 +33,4 @@ const [teacherId, password, name] = process.argv.slice(2);
 
 // createTeacher(teacherId, password, name);
 
-createUser('20210001', '123', '王相博', 'STUDENT')
+// createUser('20210001', '123', '王相博', 'STUDENT')
