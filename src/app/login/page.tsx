@@ -26,10 +26,10 @@ export default function LoginPage() {
       if (result?.error) {
         setError('登录失败，请检查学号/工号和密码');
       } else {
-        endLoading();
         router.push('/');
         router.refresh();
       }
+      endLoading();
     } catch (error) {
       setError('登录时发生错误'+error);
     }

@@ -8,9 +8,9 @@ const prisma = new PrismaClient();
 
 // 配置下载参数
 const downloadConfig = {
-  downloadDir: '../download', // 下载文件保存的目录
+  downloadDir: './download', // 下载文件保存的目录
   maxConcurrentDownloads: 5,  // 最大并发下载数
-  filePrefix: '实验2'
+  filePrefix: '实验5'
 };
 
 // 确保下载目录存在

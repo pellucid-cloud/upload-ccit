@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "eslint",
     "prebuild": "prisma generate",
-    "prisma:seed": "node ./prisma/seed.js"
+    "prisma:seed": "node ./prisma/seed.js",
+    "download": "node ./scripts/download-files.js"
   },
   "prisma": {
     "seed": "pnpm run prisma:seed"
@@ -24,6 +25,7 @@
     "@vercel/blob": "^1.1.1",
     "antd": "^5.27.3",
     "archiver": "^7.0.1",
+    "axios": "^1.12.2",
     "bcryptjs": "^3.0.2",
     "next": "15.5.3",
     "next-auth": "^4.24.11",

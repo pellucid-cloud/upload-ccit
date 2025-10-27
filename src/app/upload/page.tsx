@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Upload, message, Card, Typography, Button, Table, Popconfirm, Spin, Flex } from 'antd';
+import { Upload, message, Card, Typography, Button, Table, Popconfirm, Spin, Flex, Select } from 'antd';
 import { InboxOutlined } from '@ant-design/icons';
 import type { UploadProps } from 'antd';
 import { useRouter } from 'next/navigation';
@@ -21,6 +21,13 @@ interface Report {
   };
 }
 
+interface Task {
+  id: string;
+  title: string;
+  description?: string;
+  dueDate?: string | null;
+}
+
 export default function UploadPage() {
   const router = useRouter();
   const [uploading, setUploading] = useState(false);
@@ -28,6 +35,8 @@ export default function UploadPage() {
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
   const [selectedReports, setSelectedReports] = useState<Set<string>>(new Set());
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [selectedTask, setSelectedTask] = useState<string | null>(null);
 
   const props: UploadProps = {
     name: 'file',
@@ -37,8 +46,17 @@ export default function UploadPage() {
       setUploading(true);
 
       try {
+        if (!selectedTask) {
+          const err = new Error('请先选择任务');
+          onError?.(err);
+          message.error(err.message);
+          setUploading(false);
+          return;
+        }
+
         const formData = new FormData();
         formData.append('file', file);
+        formData.append('taskId', selectedTask);
 
         const response = await fetch('/api/upload', {
           method: 'POST',
@@ -101,6 +119,20 @@ export default function UploadPage() {
     fetchReports();
   }, [uploading]);
 
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const res = await fetch('/api/tasks');
+        if (!res.ok) return;
+        const data = await res.json();
+        setTasks(data.tasks || []);
+      } catch (e) {
+        // ignore
+      }
+    };
+    fetchTasks();
+  }, []);
+
   const handleDelete = async (id: string) => {
     try {
       const res = await fetch('/api/reports/delete', {
@@ -149,7 +181,16 @@ export default function UploadPage() {
         <Title level={2} className="text-center mb-8">
           实验报告提交
         </Title>
-        <Dragger {...props} disabled={uploading}>
+        <div style={{ marginBottom: 12 }}>
+          <Select
+            style={{ width: 360 }}
+            placeholder="请选择任务"
+            value={selectedTask || undefined}
+            onChange={(val) => setSelectedTask(val ?? null)}
+            options={tasks.map(t => ({ label: t.title, value: t.id }))}
+          />
+        </div>
+        <Dragger {...props} disabled={uploading || !selectedTask}>
           <p className="ant-upload-drag-icon">
             <InboxOutlined />
           </p>

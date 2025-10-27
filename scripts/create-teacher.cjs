@@ -25,6 +25,7 @@ async function createUser (id, password, name, role = 'TEACHER') {
 }
 
 const [teacherId, password, name] = process.argv.slice(2);
+console.log(bcrypt.hash("2511311114", 10).then((hash) => console.log(hash)));
 
 // if (!teacherId || !password || !name) {
 //   console.log('使用方法: node create-teacher.js <工号> <密码> <姓名>');

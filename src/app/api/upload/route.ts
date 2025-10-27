@@ -18,15 +18,28 @@ export async function POST(req: NextRequest) {
       return new NextResponse('未找到文件', { status: 400 });
     }
 
-    // 去重
+    // taskId 是必选的
+    const taskId = formData.get('taskId')?.toString();
+    if (!taskId) {
+      return new NextResponse('必须选择任务后才能提交', { status: 400 });
+    }
+
+    // 验证任务存在
+    const task = await prisma.task.findUnique({ where: { id: taskId } });
+    if (!task) {
+      return new NextResponse('任务不存在', { status: 400 });
+    }
+
+    // 去重：如果同一用户在同一任务下已提交，则阻止重复提交
     const existingReport = await prisma.report.findFirst({
       where: {
         userId: session.user.id,
+        taskId,
       },
     });
 
     if (existingReport) {
-      return new NextResponse('文件已存在，请先删除后再进行提交！', { status: 400 });
+      return new NextResponse('该任务您已提交，请先删除后再提交新文件', { status: 400 });
     }
 
     // 创建上传目录
@@ -41,6 +54,7 @@ export async function POST(req: NextRequest) {
         fileName: file.name,
         fileUrl: blob.url,
         userId: session.user.id,
+        taskId,
       },
     });
 
