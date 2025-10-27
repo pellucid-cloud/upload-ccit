@@ -2,10 +2,11 @@ import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { Params } from 'next/dist/server/request/params';
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Params }) {
   try {
-    const taskId = params.id;
+    const taskId = params.id as string;
     const session = await getServerSession(authOptions);
     if (!session) return new NextResponse('未授权', { status: 401 });
 

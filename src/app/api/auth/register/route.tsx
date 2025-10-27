@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
     });
 
     // 移除密码后返回用户数据
-    const { password: _, ...userWithoutPassword } = user;
+    const { password: _p, ...userWithoutPassword } = user;
     return NextResponse.json(userWithoutPassword);
   } catch (error) {
     console.error('注册错误:', error);

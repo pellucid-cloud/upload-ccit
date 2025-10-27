@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { Button, Input, Modal, message, Select, DatePicker } from 'antd';
+
+import { Button, Input, message, Select, DatePicker } from 'antd';
 import TasksPage from './tasks/page';
 
 interface Task {
@@ -30,14 +30,14 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [view, setView] = useState<'list'|'tasks'>('list');
+  const [view, setView] = useState<'list' | 'tasks'>('list');
   const [selectedReportsBulk, setSelectedReportsBulk] = useState<Set<string>>(new Set());
   const [filterName, setFilterName] = useState('');
   const [filterTask, setFilterTask] = useState<string | null>(null);
-  const [filterRange, setFilterRange] = useState<[string|null, string|null]>([null, null]);
-  const [showSubmissionsFor, setShowSubmissionsFor] = useState<string | null>(null);
-  const [submissions, setSubmissions] = useState<Report[]>([]);
-  const [creating, setCreating] = useState(false);
+  const [filterRange, setFilterRange] = useState<[string | null, string | null]>([null, null]);
+  const [_showSubmissionsFor, setShowSubmissionsFor] = useState<string | null>(null);
+  const [_submissions, setSubmissions] = useState<Report[]>([]);
+  const [_creating, setCreating] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newDesc, setNewDesc] = useState('');
 
@@ -50,7 +50,7 @@ export default function AdminPage() {
         if (!res.ok) return;
         const d = await res.json();
         setTasks(d.tasks || []);
-      } catch (e) {
+      } catch (_e) {
         // ignore
       }
     })();
@@ -73,27 +73,6 @@ export default function AdminPage() {
       setError(err instanceof Error ? err.message : '获取数据失败');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const createTask = async () => {
-    if (!newTitle) return;
-    setCreating(true);
-    try {
-      const res = await fetch('/api/tasks', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: newTitle, description: newDesc }),
-      });
-      if (!res.ok) throw new Error('创建失败');
-      const d = await res.json();
-      setTasks(prev => [d.task, ...prev]);
-      setNewTitle('');
-      setNewDesc('');
-    } catch (e) {
-      // ignore
-    } finally {
-      setCreating(false);
     }
   };
 
@@ -121,20 +100,8 @@ export default function AdminPage() {
       // refresh
       applyFilters();
       setSelectedReportsBulk(new Set());
-    } catch (e) {
+    } catch (_e) {
       message.error('批量修改失败');
-    }
-  };
-
-  const viewSubmissions = async (taskId: string) => {
-    try {
-      const res = await fetch(`/api/tasks/${taskId}/submissions`);
-      if (!res.ok) throw new Error('获取提交失败');
-      const d = await res.json();
-      setSubmissions(d.reports || []);
-      setShowSubmissionsFor(taskId);
-    } catch (e) {
-      // ignore
     }
   };
 
@@ -161,7 +128,7 @@ export default function AdminPage() {
       const d = await res.json();
       setReports(prev => prev.map(r => r.id === reportId ? d.report : r));
       message.success('修改成功');
-    } catch (e) {
+    } catch (_e) {
       message.error('修改失败');
     }
   };
@@ -176,28 +143,28 @@ export default function AdminPage() {
       </aside>
       <main className="flex-1 flex flex-col">
         {
-          view === 'tasks' ? '' : 
+          view === 'tasks' ? '' :
             <div className="bg-white rounded-lg shadow p-4 mb-4">
-          <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold">实验报告管理</h1>
-            <div className="flex gap-2">
-              <Input placeholder="按姓名查询" value={filterName} onChange={(e) => setFilterName(e.target.value)} style={{ width: 200 }} />
-              <Select allowClear placeholder="按任务过滤" style={{ width: 220 }} value={filterTask ?? undefined} onChange={(v) => setFilterTask(v ?? null)} options={[{ label: '未分配', value: '' }, ...tasks.map(t => ({ label: t.title, value: t.id }))]} />
-              <DatePicker.RangePicker onChange={(dates:any) => {
-                const toIso = (d: any) => {
-                  if (!d) return null;
-                  if (typeof d.toISOString === 'function') return d.toISOString();
-                  if (typeof d.toDate === 'function') return d.toDate().toISOString();
-                  try { return new Date(d).toISOString(); } catch { return null; }
-                };
-                setFilterRange([toIso(dates?.[0]), toIso(dates?.[1])]);
-              }} />
-              <Button onClick={applyFilters}>查询</Button>
+              <div className="flex justify-between items-center">
+                <h1 className="text-2xl font-bold">实验报告管理</h1>
+                <div className="flex gap-2">
+                  <Input placeholder="按姓名查询" value={filterName} onChange={(e) => setFilterName(e.target.value)} style={{ width: 200 }} />
+                  <Select allowClear placeholder="按任务过滤" style={{ width: 220 }} value={filterTask ?? undefined} onChange={(v) => setFilterTask(v ?? null)} options={[{ label: '未分配', value: '' }, ...tasks.map(t => ({ label: t.title, value: t.id }))]} />
+                  <DatePicker.RangePicker onChange={(dates: any) => {
+                    const toIso = (d: any) => {
+                      if (!d) return null;
+                      if (typeof d.toISOString === 'function') return d.toISOString();
+                      if (typeof d.toDate === 'function') return d.toDate().toISOString();
+                      try { return new Date(d).toISOString(); } catch { return null; }
+                    };
+                    setFilterRange([toIso(dates?.[0]), toIso(dates?.[1])]);
+                  }} />
+                  <Button onClick={applyFilters}>查询</Button>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
         }
-        
+
 
         {view === 'tasks' ? (
           <TasksPage />
@@ -217,7 +184,7 @@ export default function AdminPage() {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-4 py-2 text-left"><input type="checkbox" checked={selectedReportsBulk.size === reports.length && reports.length>0} onChange={(e) => selectAllVisible(e.target.checked)} /></th>
+                    <th className="px-4 py-2 text-left"><input type="checkbox" checked={selectedReportsBulk.size === reports.length && reports.length > 0} onChange={(e) => selectAllVisible(e.target.checked)} /></th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">文件名</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">学生</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">提交时间</th>

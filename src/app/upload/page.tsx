@@ -33,8 +33,6 @@ export default function UploadPage() {
   const [uploading, setUploading] = useState(false);
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
-  const [downloading, setDownloading] = useState(false);
-  const [selectedReports, setSelectedReports] = useState<Set<string>>(new Set());
   const [tasks, setTasks] = useState<Task[]>([]);
   const [selectedTask, setSelectedTask] = useState<string | null>(null);
 
@@ -84,18 +82,18 @@ export default function UploadPage() {
         'application/msword',
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
       ].includes(file.type);
-      
+
       if (!isValidType) {
         message.error('只能上传 PDF/DOC/DOCX 格式的文件！');
         return false;
       }
-      
+
       const isLt10M = file.size / 1024 / 1024 < 10;
       if (!isLt10M) {
         message.error('文件大小不能超过 10MB！');
         return false;
       }
-      
+
       return true;
     },
     maxCount: 1,
@@ -110,7 +108,7 @@ export default function UploadPage() {
         if (!res.ok) throw new Error('获取报告失败');
         const data = await res.json();
         setReports(data.reports);
-      } catch (e) {
+      } catch (_e) {
         message.error('获取报告失败');
       } finally {
         setLoading(false);
@@ -126,7 +124,7 @@ export default function UploadPage() {
         if (!res.ok) return;
         const data = await res.json();
         setTasks(data.tasks || []);
-      } catch (e) {
+      } catch (_e) {
         // ignore
       }
     };
@@ -143,7 +141,7 @@ export default function UploadPage() {
       if (!res.ok) throw new Error('删除失败');
       message.success('删除成功');
       setReports(reports.filter(r => r.id !== id));
-    } catch (e) {
+    } catch (_e) {
       message.error('删除失败');
     }
   };
@@ -158,19 +156,19 @@ export default function UploadPage() {
       key: 'action',
       render: (_: Report, record: Report) => {
         return (
-        <Flex gap="small">
-          <Button
-            size="small"
-            type='link'
-            href={record.fileUrl}
-          >
-            下载
-          </Button>
-          <Popconfirm title="确定删除该报告吗？" onConfirm={() => handleDelete(record.id)} okText="删除" cancelText="取消">
-            <Button danger size="small">删除</Button>
-          </Popconfirm>
-        </Flex>
-      )
+          <Flex gap="small">
+            <Button
+              size="small"
+              type='link'
+              href={record.fileUrl}
+            >
+              下载
+            </Button>
+            <Popconfirm title="确定删除该报告吗？" onConfirm={() => handleDelete(record.id)} okText="删除" cancelText="取消">
+              <Button danger size="small">删除</Button>
+            </Popconfirm>
+          </Flex>
+        )
       }
     }
   ];

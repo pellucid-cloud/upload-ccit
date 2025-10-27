@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button, Input, Modal, List, message, Popconfirm } from "antd";
-import Link from "next/link";
+import { Button, Input, List, message, Popconfirm } from "antd";
 
 interface Task {
   id: string;
@@ -27,7 +26,7 @@ export default function TasksPage() {
       if (!res.ok) throw new Error("获取任务失败");
       const d = await res.json();
       setTasks(d.tasks || []);
-    } catch (e) {
+    } catch (_e) {
       message.error("获取任务失败");
     } finally {
       setLoading(false);
@@ -54,7 +53,7 @@ export default function TasksPage() {
       setTasks(prev => [d.task, ...prev]);
       setNewTitle(''); setNewDesc('');
       message.success('创建成功');
-    } catch (e) {
+    } catch (_e) {
       message.error('创建失败');
     }
   };
