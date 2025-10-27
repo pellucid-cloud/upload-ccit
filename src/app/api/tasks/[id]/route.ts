@@ -2,16 +2,15 @@ import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { Params } from 'next/dist/server/request/params';
 
-export async function DELETE(req: NextRequest, { params }: { params: Params }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions);
     if (!session || session.user.role !== 'TEACHER') {
       return new NextResponse('未授权', { status: 401 });
     }
 
-    const taskId = params.id as string;
+    const taskId = (await params).id;
     if (!taskId) return new NextResponse('缺少任务ID', { status: 400 });
 
     const count = await prisma.report.count({ where: { taskId } });
