@@ -10,6 +10,7 @@ const prisma = new PrismaClient();
 const downloadConfig = {
   downloadDir: './download', // 下载文件保存的目录
   maxConcurrentDownloads: 5,  // 最大并发下载数
+  taskName: 'C++实验5',
   filePrefix: '实验5'
 };
 
@@ -89,36 +90,47 @@ async function downloadFiles (files) {
 
   return downloadPromises;
 }
+async function getAllReport (title) {
+  const records = await prisma.report.findMany({
+    select: {
+      userId: true,
+      fileUrl: true,
+      fileName: true,
+      user: {
+        select: {
+          name: true,
+          studentId: true
+        }
+      }
+    },
+    where: {
+      task: {
+        title: downloadConfig.taskName
+      }
+    }
+  });
 
+  // 收集所有文件URL
+  const files = records.map(record => {
+    return {
+      fileUrl: record.fileUrl + '?download=1',
+      fileName: `${downloadConfig.filePrefix}-${record.user.studentId}-${record.user.name}.doc`,
+    };
+  });
+
+  console.log(`共找到 ${files.length} 个文件需要下载`);
+  return files;
+}
 // 主函数：获取数据并下载文件
 async function main () {
   try {
     // 确保下载目录存在
     await ensureDownloadDir();
 
-    const records = await prisma.report.findMany({
-      select: {
-        userId: true,
-        fileUrl: true,
-        fileName: true,
-        user: {
-          select: {
-            name: true,
-            studentId: true
-          }
-        }
-      },
-    });
+    const files = await getAllReport();
 
-    // 收集所有文件URL
-    const files = records.map(record => {
-      return {
-        fileUrl: record.fileUrl + '?download=1',
-        fileName: `${downloadConfig.filePrefix}-${record.user.studentId}-${record.user.name}.doc`,
-      };
-    });
-
-    console.log(`共找到 ${files.length} 个文件需要下载`);
+    // console.log(files);
+    // return 0;
 
     // 开始下载文件
     const results = await downloadFiles(files);
@@ -151,7 +163,13 @@ async function main () {
 async function clearReportTable () {
   try {
     // 不指定where条件，会删除表中所有记录
-    const result = await prisma.report.deleteMany({});
+    const result = await prisma.report.deleteMany({
+      where: {
+        task: {
+          title: downloadConfig.taskName
+        }
+      }
+    });
 
     console.log(`成功清空report表，共删除 ${result.count} 条记录`);
     return result;

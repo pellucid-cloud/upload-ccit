@@ -42,6 +42,9 @@ export async function POST(req: NextRequest) {
       return new NextResponse('该任务您已提交，请先删除后再提交新文件', { status: 400 });
     }
 
+    // 判断文件后缀
+    const allowed = task.allowedExtensions;
+
     // 创建上传目录
     const blob = await put(file.name, file, {
       access: 'public'

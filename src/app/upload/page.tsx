@@ -88,9 +88,9 @@ export default function UploadPage() {
         return false;
       }
 
-      const isLt10M = file.size / 1024 / 1024 < 10;
+      const isLt10M = file.size / 1024 / 1024 < 20;
       if (!isLt10M) {
-        message.error('文件大小不能超过 10MB！');
+        message.error('文件大小不能超过 20MB！');
         return false;
       }
 
@@ -196,7 +196,7 @@ export default function UploadPage() {
             {uploading ? '正在上传...' : '点击或拖拽文件到此区域上传'}
           </p>
           <p className="ant-upload-hint">
-            支持 PDF、DOC、DOCX 格式文件，大小不超过 10MB
+            支持 PDF、DOC、DOCX 格式文件，大小不超过 20MB
           </p>
         </Dragger>
       </Card>
