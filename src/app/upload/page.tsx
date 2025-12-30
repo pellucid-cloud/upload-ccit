@@ -75,25 +75,17 @@ export default function UploadPage() {
         setUploading(false);
       }
     },
-    accept: '.doc,.docx,.zip,.7z,.rar',
+    accept: '.zip',
     beforeUpload: (file) => {
-      const isValidType = [
-        'application/pdf',
-        'application/msword',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'application/zip',
-        'application/x-7z-compressed',
-        'application/x-rar-compressed'
-      ].includes(file.type);
 
-      if (!isValidType) {
-        message.error('只能上传 DOCX/DOC/ZIP/RAR/7z 格式的文件！');
+      if (!file.name.endsWith(".zip")) {
+        message.error('只能上传 ZIP 格式的文件！');
         return false;
       }
 
-      const isLt10M = file.size / 1024 / 1024 < 20;
+      const isLt10M = file.size / 1024 / 1024 < 12.5;
       if (!isLt10M) {
-        message.error('文件大小不能超过 20MB！');
+        message.error('文件大小不能超过 12.5MB！');
         return false;
       }
 
