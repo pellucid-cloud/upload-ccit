@@ -75,7 +75,7 @@ export default function UploadPage() {
         setUploading(false);
       }
     },
-    accept: '.pdf,.doc,.docx',
+    accept: '.doc,.docx,.zip,.7z,.rar',
     beforeUpload: (file) => {
       const isValidType = [
         'application/pdf',
@@ -84,7 +84,7 @@ export default function UploadPage() {
       ].includes(file.type);
 
       if (!isValidType) {
-        message.error('只能上传 PDF/DOC/DOCX 格式的文件！');
+        message.error('只能上传 DOCX/DOC/ZIP/RAR/7z 格式的文件！');
         return false;
       }
 
