@@ -80,7 +80,10 @@ export default function UploadPage() {
       const isValidType = [
         'application/pdf',
         'application/msword',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/zip',
+        'application/x-7z-compressed',
+        'application/x-rar-compressed'
       ].includes(file.type);
 
       if (!isValidType) {
