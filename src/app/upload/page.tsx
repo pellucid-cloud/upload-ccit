@@ -22,6 +22,7 @@ interface Report {
 }
 
 interface Task {
+  allowedExtensions: string[];
   id: string;
   title: string;
   description?: string;
@@ -75,14 +76,8 @@ export default function UploadPage() {
         setUploading(false);
       }
     },
-    accept: '.zip',
+    accept: ".docx",
     beforeUpload: (file) => {
-
-      if (!file.name.endsWith(".zip")) {
-        message.error('只能上传 ZIP 格式的文件！');
-        return false;
-      }
-
       const isLt10M = file.size / 1024 / 1024 < 12.5;
       if (!isLt10M) {
         message.error('文件大小不能超过 12.5MB！');
@@ -120,7 +115,6 @@ export default function UploadPage() {
         const data = await res.json();
         setTasks(data.tasks || []);
       } catch (_e) {
-        // ignore
       }
     };
     fetchTasks();

@@ -12,8 +12,8 @@ const { list } = require('@vercel/blob');
 const downloadConfig = {
   downloadDir: './download', // 下载文件保存的目录
   maxConcurrentDownloads: 5,  // 最大并发下载数
-  taskName: 'C++任务11',
-  filePrefix: '实验11'
+  taskName: '实训压缩包',
+  filePrefix: ''
 };
 
 // 确保下载目录存在
@@ -116,7 +116,7 @@ async function getAllReport (title) {
   const files = records.map(record => {
     return {
       fileUrl: record.fileUrl + '?download=1',
-      fileName: `${downloadConfig.filePrefix}-${record.user.studentId}-${record.user.name}.doc`
+      fileName: `软件2531-${record.user.studentId}-${record.user.name}.zip`
     };
   });
 
