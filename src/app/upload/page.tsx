@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Upload, message, Card, Typography, Button, Table, Popconfirm, Spin, Flex, Select } from 'antd';
 import { InboxOutlined } from '@ant-design/icons';
 import type { UploadProps } from 'antd';
@@ -36,7 +36,12 @@ export default function UploadPage() {
   const [loading, setLoading] = useState(true);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [selectedTask, setSelectedTask] = useState<string | null>(null);
+  const extType = useMemo(() => {
+    const ext = tasks.find((task) => task.id === selectedTask)?.allowedExtensions?.join(',') || '.docx';
+    console.log(ext);
 
+    return ext;
+  }, [selectedTask])
   const props: UploadProps = {
     name: 'file',
     multiple: false,
@@ -76,12 +81,25 @@ export default function UploadPage() {
         setUploading(false);
       }
     },
-    accept: ".docx",
+    accept: extType,
     beforeUpload: (file) => {
+      // 1. 判断文件大小
       const isLt10M = file.size / 1024 / 1024 < 12.5;
       if (!isLt10M) {
         message.error('文件大小不能超过 12.5MB！');
-        return false;
+        return Upload.LIST_IGNORE;
+      }
+
+      // 2. 拦截拖拽等方式绕过 accept 的非法格式文件
+      if (extType) {
+        const fileExt = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+        const allowedExts = extType.split(',').map(e => e.trim().toLowerCase());
+        
+        // 如果允许的列表中不包含该文件后缀
+        if (!allowedExts.includes(fileExt)) {
+          message.error(`只支持 ${extType} 格式的文件！`);
+          return Upload.LIST_IGNORE;
+        }
       }
 
       return true;
@@ -174,7 +192,7 @@ export default function UploadPage() {
             placeholder="请选择任务"
             value={selectedTask || undefined}
             onChange={(val) => setSelectedTask(val ?? null)}
-            options={tasks.map(t => ({ label: t.title, value: t.id }))}
+            options={tasks.map(t => ({ label: t.title, value: t.id, ...t }))}
           />
         </div>
         <Dragger {...props} disabled={uploading || !selectedTask}>

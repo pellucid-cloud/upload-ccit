@@ -12,8 +12,8 @@ const { list } = require('@vercel/blob');
 const downloadConfig = {
   downloadDir: './download', // 下载文件保存的目录
   maxConcurrentDownloads: 5,  // 最大并发下载数
-  taskName: '实训压缩包',
-  filePrefix: ''
+  taskName: 'Java 实验1',
+  collect: []
 };
 
 // 确保下载目录存在
@@ -92,7 +92,7 @@ async function downloadFiles (files) {
 
   return downloadPromises;
 }
-async function getAllReport (title) {
+async function getAllReport () {
   const records = await prisma.report.findMany({
     select: {
       userId: true,
@@ -114,9 +114,10 @@ async function getAllReport (title) {
 
   // 收集所有文件URL
   const files = records.map(record => {
+    downloadConfig.collect.push(record.user.studentId.slice(-2))
     return {
       fileUrl: record.fileUrl + '?download=1',
-      fileName: `软件2531-${record.user.studentId}-${record.user.name}.zip`
+      fileName: `Java语言程序设计实验报告-实验1-软件2531-${record.user.studentId.slice(-2)}-${record.user.name}`
     };
   });
 
@@ -156,6 +157,7 @@ async function main () {
     if (successCount == files.length) {
       const result = await deleteReportByTask();
       console.log(`成功清空report表，共删除 ${result.count} 条记录`);
+      console.log(downloadConfig.collect.join(','));
     }
 
   } catch (error) {
@@ -222,86 +224,3 @@ async function downloadCurrentAllFiles () {
 
 
 // downloadCurrentAllFiles()
-
-// 批量修改后缀
-async function batchRenameFiles (dirPath, oldExt, newExt) {
-  // 结果收集器：成功重命名的文件、失败的文件及原因
-  const result = {
-    success: [],
-    failed: []
-  };
-
-  try {
-    // 1. 解析并校验目录路径（处理相对路径 -> 绝对路径）
-    const absoluteDir = path.resolve(dirPath);
-    await fs.access(absoluteDir, fs.constants.F_OK | fs.constants.R_OK); // 校验目录是否存在且可读
-
-    // 2. 读取目录下所有文件/子目录（仅处理文件，跳过子目录）
-    const files = await fs.readdir(absoluteDir, { withFileTypes: true });
-    const fileEntries = files.filter(entry => entry.isFile()); // 过滤出文件（排除文件夹）
-
-    if (fileEntries.length === 0) {
-      console.log(`⚠️  目录 ${absoluteDir} 下无文件可处理`);
-      return result;
-    }
-
-    // 3. 遍历文件，批量重命名（异步并发执行，效率更高）
-    await Promise.all(
-      fileEntries.map(async (fileEntry) => {
-        const oldFileName = fileEntry.name;
-        const oldFilePath = path.join(absoluteDir, oldFileName);
-
-        // 3.1 校验文件是否匹配原后缀（oldExt 为空则匹配无后缀文件）
-        // const fileExt = path.extname(oldFileName);
-        // if (fileExt !== oldExt) return; // 后缀不匹配，跳过
-        if (!oldFileName.startsWith('实验8'))
-          return;
-
-        // 3.2 构造新文件名（保留文件名主体，替换后缀）
-        const fileNameWithoutExt = path.basename(oldFileName, oldExt); // 去除原后缀的文件名
-        const newFileName = "实验8-25113111" + fileNameWithoutExt.slice(-2) + '-' + fileNameWithoutExt.slice(4, -3) + '.doc'
-        const newFilePath = path.join(absoluteDir, newFileName);
-
-        // 3.3 避免覆盖已存在的文件
-        if (newFileName === oldFileName) {
-          result.failed.push({
-            file: oldFileName,
-            error: '新后缀与原后缀一致，无需修改'
-          });
-          return;
-        }
-
-        try {
-          // 3.4 执行重命名（原子操作，fs.rename 会覆盖同名文件，此处加存在性校验）
-          await fs.access(newFilePath, fs.constants.F_OK).catch(() => null); // 检查新文件是否存在
-          await fs.rename(oldFilePath, newFilePath);
-          result.success.push(oldFileName);
-          console.log(`✅ 成功：${oldFileName} -> ${newFileName}`);
-        } catch (renameErr) {
-          result.failed.push({
-            file: oldFileName,
-            error: renameErr.message
-          });
-          console.error(`❌ 失败：${oldFileName} - ${renameErr.message}`);
-        }
-      })
-    );
-
-  } catch (initErr) {
-    // 目录访问失败（如路径不存在、无权限）
-    result.failed.push({
-      file: dirPath,
-      error: `目录处理失败：${initErr.message}`
-    });
-    console.error(`❌ 目录错误：${initErr.message}`);
-  }
-
-  return result;
-}
-
-
-// batchRenameFiles(
-//   './download',
-//   '.doc',
-//   ''
-// )

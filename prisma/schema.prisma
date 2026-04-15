@@ -45,8 +45,9 @@ model Task {
   createdAt         DateTime  @default(now())
   dueDate           DateTime?
   creatorId         String?
-  creator           User?     @relation(fields: [creatorId], references: [id])
-  reports           Report[]
-  expectedCount     Int?
+  creator         User?     @relation(fields: [creatorId], references: [id])
+  reports         Report[]
+  expectedCount   Int?
   allowedExtensions String[]  @default([])
+  enable          Boolean   @default(true)
 }
