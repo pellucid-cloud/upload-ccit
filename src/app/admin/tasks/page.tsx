@@ -11,6 +11,7 @@ interface Task {
   expectedCount?: number | null;
   allowedExtensions?: string[];
   _count?: { reports: number };
+  enable: boolean;
 }
 
 export default function TasksPage() {
@@ -22,10 +23,12 @@ export default function TasksPage() {
   const fetchTasks = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/tasks");
+      const res = await fetch("/api/tasks?enable=2");
       if (!res.ok) throw new Error("获取任务失败");
       const d = await res.json();
       setTasks(d.tasks || []);
+      console.log(d.tasks);
+
     } catch (_e) {
       message.error("获取任务失败");
     } finally {
@@ -69,6 +72,17 @@ export default function TasksPage() {
     }
   };
 
+  const enableTask = async (id: string) => {
+    try {
+      const res = await fetch(`/api/tasks/${id}`, { method: 'PUT' });
+      if (!res.ok) throw new Error(await res.text());
+      fetchTasks();
+      message.success('操作成功');
+    } catch (e: any) {
+      message.error(e?.message || '操作失败');
+    }
+  }
+
   return (
     <div className="h-full">
       <div className="bg-white rounded-lg shadow p-4 mb-4 flex justify-between items-center">
@@ -89,11 +103,22 @@ export default function TasksPage() {
           <List.Item actions={[
             <Popconfirm key="del" title="确认删除该任务？(若存在提交将无法删除)" onConfirm={() => deleteTask(t.id)} okText="删除" cancelText="取消">
               <Button danger size="small">删除</Button>
+            </Popconfirm>,
+            <Popconfirm key="enable" title="确认禁用/启用该任务？(若存在提交将无法删除)" onConfirm={() => enableTask(t.id)} okText="禁用/启用" cancelText="取消">
+              <Button color="cyan" size="small">禁用/启用</Button>
             </Popconfirm>
           ]}>
 
             <List.Item.Meta
-              title={<div className="flex items-center gap-3"><span>{t.title}</span><span className="text-sm text-gray-500">{t._count?.reports ?? 0} 提交</span></div>}
+              title={
+                <div className="flex items-center gap-3">
+                  <span>{t.title}</span>
+                  <span className="text-sm text-gray-500">{t._count?.reports ?? 0} 提交</span>
+                  {!t.enable && (
+                    <span className="ml-2 px-2 py-0.5 rounded bg-red-100 text-red-600 text-xs">已禁用</span>
+                  )}
+                </div>
+              }
               description={<div>
                 <div>{t.description}</div>
                 <div className="text-sm text-gray-500">期望数量: {t.expectedCount ?? '未设置'} • 允许后缀: {(t.allowedExtensions || []).join(', ') || '无限制'}</div>
@@ -102,7 +127,6 @@ export default function TasksPage() {
           </List.Item>
         )} />
       </div>
-
     </div>
   );
 }

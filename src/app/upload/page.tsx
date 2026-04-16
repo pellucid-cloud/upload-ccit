@@ -128,7 +128,7 @@ export default function UploadPage() {
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const res = await fetch('/api/tasks');
+        const res = await fetch('/api/tasks?enable=1');
         if (!res.ok) return;
         const data = await res.json();
         setTasks(data.tasks || []);

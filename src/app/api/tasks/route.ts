@@ -3,10 +3,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const enable = req.nextUrl.searchParams.get('enable');
+    const where = enable && enable !== '2' ? { enable: enable === '1' } : {};
+
     const tasks = await prisma.task.findMany({
       orderBy: { createdAt: 'desc' },
+      where,
       include: { _count: { select: { reports: true } } },
     });
     return NextResponse.json({ tasks });

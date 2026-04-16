@@ -25,3 +25,25 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     return new NextResponse('删除任务失败', { status: 500 });
   }
 }
+
+
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || session.user.role !== 'TEACHER') {
+      return new NextResponse('未授权', { status: 401 });
+    }
+
+    const taskId = (await params).id;
+    if (!taskId) return new NextResponse('缺少任务ID', { status: 400 });
+
+    const task = await prisma.task.findUnique({ where: { id: taskId } });
+    if (!task) return new NextResponse('任务不存在', { status: 404 });
+    
+    await prisma.task.update({ where: { id: taskId }, data: { enable: !task.enable } });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('更新任务失败:', error);
+    return new NextResponse('更新任务失败', { status: 500 });
+  }
+}

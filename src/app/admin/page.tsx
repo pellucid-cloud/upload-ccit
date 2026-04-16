@@ -4,12 +4,14 @@ import { useEffect, useState } from 'react';
 
 import { Button, Input, message, Select, DatePicker } from 'antd';
 import TasksPage from './tasks/page';
+import UsersPage from './user/page';
 
 interface Task {
   id: string;
   title: string;
   description?: string;
   dueDate?: string | null;
+  enable: boolean;
 }
 
 interface Report {
@@ -30,7 +32,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [view, setView] = useState<'list' | 'tasks'>('list');
+  const [view, setView] = useState<'list' | 'tasks' | 'users'>('list');
   const [selectedReportsBulk, setSelectedReportsBulk] = useState<Set<string>>(new Set());
   const [filterName, setFilterName] = useState('');
   const [filterTask, setFilterTask] = useState<string | null>(null);
@@ -38,8 +40,6 @@ export default function AdminPage() {
   const [_showSubmissionsFor, setShowSubmissionsFor] = useState<string | null>(null);
   const [_submissions, setSubmissions] = useState<Report[]>([]);
   const [_creating, setCreating] = useState(false);
-  const [newTitle, setNewTitle] = useState('');
-  const [newDesc, setNewDesc] = useState('');
 
   useEffect(() => {
     fetchReports();
@@ -139,11 +139,12 @@ export default function AdminPage() {
         <div className="flex flex-col gap-2">
           <Button type={view === 'list' ? 'primary' : 'default'} onClick={() => setView('list')}>报告列表</Button>
           <Button type={view === 'tasks' ? 'primary' : 'default'} onClick={() => setView('tasks')}>任务管理</Button>
+          <Button type={view === 'users' ? 'primary' : 'default'} onClick={() => setView('users')}>用户管理</Button>
         </div>
       </aside>
       <main className="flex-1 flex flex-col">
         {
-          view === 'tasks' ? '' :
+          view === 'list' &&
             <div className="bg-white rounded-lg shadow p-4 mb-4">
               <div className="flex justify-between items-center">
                 <h1 className="text-2xl font-bold">实验报告管理</h1>
@@ -166,9 +167,9 @@ export default function AdminPage() {
         }
 
 
-        {view === 'tasks' ? (
-          <TasksPage />
-        ) : (
+        {view === 'tasks' && <TasksPage />}
+        {view === 'users' && <UsersPage />}
+        {view === 'list' && (
           <div className="bg-white rounded-lg shadow p-4 flex-1">
             <div className="mb-2 flex items-center justify-between">
               <div>
@@ -200,16 +201,16 @@ export default function AdminPage() {
                       <td className="px-6 py-4 whitespace-nowrap"><div className="text-sm text-gray-900">{report.user.name}</div><div className="text-sm text-gray-500">{report.user.studentId}</div></td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(report.submittedAt).toLocaleString('zh-CN')}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        <Select style={{ width: 220 }} value={report.task?.id ?? ''} onChange={(val) => assignTaskForReport(report.id, val === '' ? null : val)} options={[{ label: '未分配', value: '' }, ...tasks.map(t => ({ label: t.title, value: t.id }))]} />
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm"><a href={report.fileUrl} target="_blank" rel="noreferrer" className="text-blue-600">下载</a></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+                            <Select style={{ width: 220 }} value={report.task?.id ?? ''} onChange={(val) => assignTaskForReport(report.id, val === '' ? null : val)} options={[{ label: '未分配', value: '' }, ...tasks.map(t => ({ label: t.title, value: t.id }))]} />
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm"><a href={report.fileUrl} target="_blank" rel="noreferrer" className="text-blue-600">下载</a></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+          )}
       </main>
     </div>
   );
