@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { Button, Input, message, Select, DatePicker } from 'antd';
 import TasksPage from './tasks/page';
 import UsersPage from './user/page';
+import AdminDownloadPage from './download/page';
 
 interface Task {
   id: string;
@@ -32,7 +33,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [view, setView] = useState<'list' | 'tasks' | 'users'>('list');
+  const [view, setView] = useState<'list' | 'tasks' | 'users' | 'download'>('list');
   const [selectedReportsBulk, setSelectedReportsBulk] = useState<Set<string>>(new Set());
   const [filterName, setFilterName] = useState('');
   const [filterTask, setFilterTask] = useState<string | null>(null);
@@ -135,40 +136,42 @@ export default function AdminPage() {
   return (
     <div className="flex gap-6 w-full h-full pb-4">
       <aside className="w-56 bg-white rounded shadow p-4 h-full">
-        <div className="mb-4 text-lg font-semibold">管理面板</div>
+        {/* <div className="mb-4 text-lg font-semibold">管理面板</div> */}
         <div className="flex flex-col gap-2">
           <Button type={view === 'list' ? 'primary' : 'default'} onClick={() => setView('list')}>报告列表</Button>
           <Button type={view === 'tasks' ? 'primary' : 'default'} onClick={() => setView('tasks')}>任务管理</Button>
           <Button type={view === 'users' ? 'primary' : 'default'} onClick={() => setView('users')}>用户管理</Button>
+          <Button type={view === 'download' ? 'primary' : 'default'} onClick={() => setView('download')}>按任务下载</Button>
         </div>
       </aside>
       <main className="flex-1 flex flex-col">
         {
           view === 'list' &&
-            <div className="bg-white rounded-lg shadow p-4 mb-4">
-              <div className="flex justify-between items-center">
-                <h1 className="text-2xl font-bold">实验报告管理</h1>
-                <div className="flex gap-2">
-                  <Input placeholder="按姓名查询" value={filterName} onChange={(e) => setFilterName(e.target.value)} style={{ width: 200 }} />
-                  <Select allowClear placeholder="按任务过滤" style={{ width: 220 }} value={filterTask ?? undefined} onChange={(v) => setFilterTask(v ?? null)} options={[{ label: '未分配', value: '' }, ...tasks.map(t => ({ label: t.title, value: t.id }))]} />
-                  <DatePicker.RangePicker onChange={(dates: any) => {
-                    const toIso = (d: any) => {
-                      if (!d) return null;
-                      if (typeof d.toISOString === 'function') return d.toISOString();
-                      if (typeof d.toDate === 'function') return d.toDate().toISOString();
-                      try { return new Date(d).toISOString(); } catch { return null; }
-                    };
-                    setFilterRange([toIso(dates?.[0]), toIso(dates?.[1])]);
-                  }} />
-                  <Button onClick={applyFilters}>查询</Button>
-                </div>
+          <div className="bg-white rounded-lg shadow p-4 mb-4">
+            <div className="flex justify-between items-center">
+              <h1 className="text-2xl font-bold">实验报告管理</h1>
+              <div className="flex gap-2">
+                <Input placeholder="按姓名查询" value={filterName} onChange={(e) => setFilterName(e.target.value)} style={{ width: 200 }} />
+                <Select allowClear placeholder="按任务过滤" style={{ width: 220 }} value={filterTask ?? undefined} onChange={(v) => setFilterTask(v ?? null)} options={[{ label: '未分配', value: '' }, ...tasks.map(t => ({ label: t.title, value: t.id }))]} />
+                <DatePicker.RangePicker onChange={(dates: any) => {
+                  const toIso = (d: any) => {
+                    if (!d) return null;
+                    if (typeof d.toISOString === 'function') return d.toISOString();
+                    if (typeof d.toDate === 'function') return d.toDate().toISOString();
+                    try { return new Date(d).toISOString(); } catch { return null; }
+                  };
+                  setFilterRange([toIso(dates?.[0]), toIso(dates?.[1])]);
+                }} />
+                <Button onClick={applyFilters}>查询</Button>
               </div>
             </div>
+          </div>
         }
 
 
         {view === 'tasks' && <TasksPage />}
         {view === 'users' && <UsersPage />}
+        {view === 'download' && <AdminDownloadPage />}
         {view === 'list' && (
           <div className="bg-white rounded-lg shadow p-4 flex-1">
             <div className="mb-2 flex items-center justify-between">
@@ -201,16 +204,16 @@ export default function AdminPage() {
                       <td className="px-6 py-4 whitespace-nowrap"><div className="text-sm text-gray-900">{report.user.name}</div><div className="text-sm text-gray-500">{report.user.studentId}</div></td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(report.submittedAt).toLocaleString('zh-CN')}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
-                            <Select style={{ width: 220 }} value={report.task?.id ?? ''} onChange={(val) => assignTaskForReport(report.id, val === '' ? null : val)} options={[{ label: '未分配', value: '' }, ...tasks.map(t => ({ label: t.title, value: t.id }))]} />
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm"><a href={report.fileUrl} target="_blank" rel="noreferrer" className="text-blue-600">下载</a></td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-          )}
+                        <Select style={{ width: 220 }} value={report.task?.id ?? ''} onChange={(val) => assignTaskForReport(report.id, val === '' ? null : val)} options={[{ label: '未分配', value: '' }, ...tasks.map(t => ({ label: t.title, value: t.id }))]} />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm"><a href={report.fileUrl} target="_blank" rel="noreferrer" className="text-blue-600">下载</a></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
