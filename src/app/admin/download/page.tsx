@@ -45,7 +45,6 @@ export default function AdminDownloadPage() {
       const params = new URLSearchParams({ taskId });
       if (prefix?.trim()) params.set('prefix', prefix.trim());
       const url = `/api/admin/download?${params.toString()}`;
-      // 直接打开下载地址，浏览器会按附件流下载。
       window.open(url, '_blank');
       message.success('已开始下载，请稍候');
     } catch {
