@@ -22,7 +22,7 @@ export default function UsersPage() {
       if (!res.ok) throw new Error('获取用户失败');
       const data = await res.json();
       setUsers(data.users || []);
-    } catch (_e) {
+    } catch {
       message.error('获取用户列表失败');
     } finally {
       setLoading(false);

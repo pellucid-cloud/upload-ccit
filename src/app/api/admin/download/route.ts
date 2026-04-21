@@ -16,15 +16,16 @@ function getExt(fileName: string) {
 }
 
 function buildMissingStudentIds(reports: Array<{ user: { studentId: string } }>) {
-  let exc = '2311311123', isContain = false;
+  const exc = '2311311123'
+  let isContain = false;
   const collected = reports
     .map((report) => {
-      let id = report.user.studentId;
+      const id = report.user.studentId;
       if (id == exc) {
         isContain = true;
         return 0
       } else {
-        return Number.parseInt(report.user.studentId.slice(-2), 10)
+        return Number.parseInt(id.slice(-2), 10)
       }
     })
     .filter((num) => num > 0 && Number.isFinite(num));

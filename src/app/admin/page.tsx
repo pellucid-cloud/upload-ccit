@@ -38,9 +38,6 @@ export default function AdminPage() {
   const [filterName, setFilterName] = useState('');
   const [filterTask, setFilterTask] = useState<string | null>(null);
   const [filterRange, setFilterRange] = useState<[string | null, string | null]>([null, null]);
-  const [_showSubmissionsFor, setShowSubmissionsFor] = useState<string | null>(null);
-  const [_submissions, setSubmissions] = useState<Report[]>([]);
-  const [_creating, setCreating] = useState(false);
 
   useEffect(() => {
     fetchReports();
@@ -51,7 +48,7 @@ export default function AdminPage() {
         if (!res.ok) return;
         const d = await res.json();
         setTasks(d.tasks || []);
-      } catch (_e) {
+      } catch {
         // ignore
       }
     })();
@@ -101,7 +98,7 @@ export default function AdminPage() {
       // refresh
       applyFilters();
       setSelectedReportsBulk(new Set());
-    } catch (_e) {
+    } catch {
       message.error('批量修改失败');
     }
   };
@@ -129,7 +126,7 @@ export default function AdminPage() {
       const d = await res.json();
       setReports(prev => prev.map(r => r.id === reportId ? d.report : r));
       message.success('修改成功');
-    } catch (_e) {
+    } catch {
       message.error('修改失败');
     }
   };

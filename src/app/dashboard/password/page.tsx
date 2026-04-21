@@ -2,11 +2,9 @@
 
 import { useState } from 'react';
 import { Card, Form, Input, Button, message } from 'antd';
-import { useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 
 export default function PasswordPage() {
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   const onFinish = async (values: { oldPassword: string; newPassword: string; confirmPassword: string }) => {

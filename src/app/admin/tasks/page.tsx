@@ -29,7 +29,7 @@ export default function TasksPage() {
       setTasks(d.tasks || []);
       console.log(d.tasks);
 
-    } catch (_e) {
+    } catch {
       message.error("获取任务失败");
     } finally {
       setLoading(false);
@@ -56,7 +56,7 @@ export default function TasksPage() {
       setTasks(prev => [d.task, ...prev]);
       setNewTitle(''); setNewDesc('');
       message.success('创建成功');
-    } catch (_e) {
+    } catch {
       message.error('创建失败');
     }
   };

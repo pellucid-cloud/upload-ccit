@@ -38,10 +38,8 @@ export default function UploadPage() {
   const [selectedTask, setSelectedTask] = useState<string | null>(null);
   const extType = useMemo(() => {
     const ext = tasks.find((task) => task.id === selectedTask)?.allowedExtensions?.join(',') || '.docx';
-    console.log(ext);
-
     return ext;
-  }, [selectedTask])
+  }, [selectedTask, tasks])
   const props: UploadProps = {
     name: 'file',
     multiple: false,
@@ -94,7 +92,7 @@ export default function UploadPage() {
       if (extType) {
         const fileExt = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
         const allowedExts = extType.split(',').map(e => e.trim().toLowerCase());
-        
+
         // 如果允许的列表中不包含该文件后缀
         if (!allowedExts.includes(fileExt)) {
           message.error(`只支持 ${extType} 格式的文件！`);
@@ -116,7 +114,7 @@ export default function UploadPage() {
         if (!res.ok) throw new Error('获取报告失败');
         const data = await res.json();
         setReports(data.reports);
-      } catch (_e) {
+      } catch {
         message.error('获取报告失败');
       } finally {
         setLoading(false);
@@ -132,7 +130,7 @@ export default function UploadPage() {
         if (!res.ok) return;
         const data = await res.json();
         setTasks(data.tasks || []);
-      } catch (_e) {
+      } catch {
       }
     };
     fetchTasks();
@@ -148,7 +146,7 @@ export default function UploadPage() {
       if (!res.ok) throw new Error('删除失败');
       message.success('删除成功');
       setReports(reports.filter(r => r.id !== id));
-    } catch (_e) {
+    } catch  {
       message.error('删除失败');
     }
   };

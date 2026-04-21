@@ -14,7 +14,7 @@ const LoadingContext = createContext<LoadingContextType | null>(null);
 export const LoadingProvider = ({ children }: { children: React.ReactNode }) => {
   // 维护加载状态和计数器
   const [loading, setLoading] = useState(false);
-  const [loadingCount, setLoadingCount] = useState(0);
+  const [_, setLoadingCount] = useState(0);
 
   // 开始加载（支持叠加）
   const startLoading = () => {
